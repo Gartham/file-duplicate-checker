@@ -18,3 +18,5 @@ java -jar dupecheck.jar "C:/My Documents"
 
 ## Implementation
 The implementation uses hashing. It generates and stores a hash of each file it encounters. (Hashes are small, ~32B, so they are easy to store in memory.) Whenever it encounters another file that has the same contents as one it's already scanned, it compares the hashes and finds a collision.
+![image](https://user-images.githubusercontent.com/67575219/192056453-47a7b07d-4dfb-4796-b19f-e4181d781bd8.png)
+Hashing is done using `SHA-256`. On a CPU-bound consumer computer, this program can easily hash and compare about `200MB/s` of file data, in some cases reaching as fast as `300MB/s`.
