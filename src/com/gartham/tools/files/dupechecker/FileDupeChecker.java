@@ -12,8 +12,6 @@ import java.util.Stack;
 
 import org.alixia.javalibrary.strings.StringTools;
 
-import com.sun.org.apache.xml.internal.serializer.utils.StringToIntTable;
-
 public class FileDupeChecker {
 
 	private static class Hash {
