@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,42 +15,6 @@ import java.util.Stack;
 import org.alixia.javalibrary.strings.StringTools;
 
 public class FileDupeChecker {
-
-	private static class Hash {
-		private final byte[] bytes;
-
-		public Hash(byte... bytes) {
-			this.bytes = bytes;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + Arrays.hashCode(bytes);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Hash other = (Hash) obj;
-			if (!Arrays.equals(bytes, other.bytes))
-				return false;
-			return true;
-		}
-		
-		@Override
-		public String toString() {
-			return StringTools.toHexString(bytes);
-		}
-
-	}
 
 	private static final int BUFFER_SIZE = 65535, STATUS_DELAY_GAP = 10000;
 	private static final boolean PRINT_STATUS = true;
@@ -64,7 +27,7 @@ public class FileDupeChecker {
 		else if (!file.isDirectory())
 			System.err.println("You need to specify a directory to search through!");
 		else {
-			Map<Hash, List<File>> hashtable = new HashMap<>();
+			Map<FileHash, List<File>> hashtable = new HashMap<>();
 			MessageDigest hasher = MessageDigest.getInstance("SHA-256");
 
 			Stack<File> dirchildren = new Stack<>();
@@ -109,7 +72,7 @@ public class FileDupeChecker {
 								continue;
 							}
 							byte[] hash = hasher.digest();
-							Hash h = new Hash(hash);
+							FileHash h = new FileHash(hash);
 							if (hashtable.containsKey(h))
 								hashtable.get(h).add(f);
 							else {
@@ -124,7 +87,7 @@ public class FileDupeChecker {
 				}
 			}
 
-			for (Entry<Hash, List<File>> e : hashtable.entrySet())
+			for (Entry<FileHash, List<File>> e : hashtable.entrySet())
 				if (e.getValue().size() != 1) {
 					System.out.println("Files with hash " + e.getKey() + ':');
 					for (File f : e.getValue())
