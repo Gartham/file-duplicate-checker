@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -199,6 +200,32 @@ public class FileDatabase {
 				lenmap.put(hash, files);
 			}
 		}
+	}
+
+	/**
+	 * <p>
+	 * Scans through this {@link FileDatabase} and returns a {@link Map} of all the
+	 * {@link FileHash hashes} that have duplicate {@link File}s registered. The
+	 * {@link Map} contains all of the duplicate {@link File}s as values.
+	 * </p>
+	 * <p>
+	 * The returned {@link Map} is modifiable and is <b>not</b> backed by this
+	 * {@link FileDatabase}; changes to this object do not affect the returned
+	 * {@link Map}, nor vice versa.
+	 * </p>
+	 * 
+	 * @return A {@link Map} of the {@link File}s that are duplicates, keyed by
+	 *         their {@link FileHash}. Every {@link List} of {@link File}s in this
+	 *         map is contains {@link File}s all with the same hash, and is stored
+	 *         under that hash as the key.
+	 */
+	public Map<FileHash, List<File>> collectDuplicates() {
+		Map<FileHash, List<File>> dupes = new HashMap<>();
+		for (Map<FileHash, List<File>> lenmap : rootMap.values())
+			for (Entry<FileHash, List<File>> e : lenmap.entrySet())
+				if (e.getValue().size() > 1)
+					dupes.put(e.getKey(), e.getValue());
+		return dupes;
 	}
 
 	public FileHash hash(File file) throws IOException {
