@@ -16,11 +16,59 @@ import org.alixia.javalibrary.strings.StringTools;
 
 public class FileDupeChecker {
 
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		File file = new File(args[0]);
+		if (!file.exists())
+			System.err.println("File not found: " + file);
+		else if (!file.isDirectory())
+			System.err.println("You need to specify a directory to search through!");
+		else {
+
+			FileDatabase db = new FileDatabase();
+
+			Stack<File> dirchildren = new Stack<>();
+			dirchildren.push(file);
+
+			while (!dirchildren.isEmpty()) {
+				File tf = dirchildren.pop();
+				for (File f : tf.listFiles(File::isDirectory))
+					dirchildren.push(f);
+				for (File f : tf.listFiles()) {
+					// Only reads in non-folders.
+					if (f.isFile())
+						try {
+							db.addFile(f);
+						} catch (IOException e1) {
+							System.err.println("Failed to open a file: " + e1
+									+ ". There is a small chance that this will cause OTHER files to not be tracked appropriately.");
+						}
+				}
+			}
+
+			for (Entry<FileHash, List<File>> e : db.collectDuplicates().entrySet())
+				if (e.getValue().size() != 1) {
+					System.out.println("Files with hash " + e.getKey() + ':');
+					for (File f : e.getValue())
+						System.out.println("\t" + f);
+				}
+
+		}
+	}
+
 	private static final int BUFFER_SIZE = 65535, STATUS_DELAY_GAP = 10000;
 	private static final boolean PRINT_STATUS = true;
 
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-
+	/**
+	 * Runs the old checking algorithm from before file lengths were considered by
+	 * this program. (This function is just a copy of the main function from that
+	 * point in time.)
+	 * 
+	 * @param args The program arguments. (This should contain at least one value
+	 *             which is the folder to scan. Subsequent values are ignored.)
+	 * @throws NoSuchAlgorithmException If SHA-256 is not supported by this Java
+	 *                                  installation.
+	 */
+	public static void checkOld(String... args) throws NoSuchAlgorithmException {
 		File file = new File(args[0]);
 		if (!file.exists())
 			System.err.println("File not found: " + file);
